@@ -86,9 +86,64 @@ class Hand:
             print("Value:", self.get_value())
 
 
-deck = Deck()
-deck.shuffle()
+class Game:
+    def play(self):
+        game_number = 0
+        games_to_play = 0
 
-hand = Hand(dealer = True)
-hand.add_card(deck.deal(2))
-hand.display()
+        while games_to_play <= 0:
+            try:
+                games_to_play = int(input("How many games would you like to play? "))
+            except ValueError:
+                print("Please enter a valid number.")
+
+        while game_number < games_to_play:
+            print(f"\nStarting Game {game_number + 1}...\n")
+            deck = Deck()
+            deck.shuffle()
+
+            player_hand = Hand()
+            dealer_hand = Hand(dealer=True)
+
+            player_hand.add_card(deck.deal(2))
+            dealer_hand.add_card(deck.deal(2))
+
+            player_hand.display()
+            dealer_hand.display()
+
+            if player_hand.is_blackjack():
+                print("Player has a Blackjack! Player wins!")
+                game_number += 1
+                continue
+
+            while True:
+                action = input("Would you like to Hit or Stand? (h/s): ").lower()
+                if action == 'h':
+                    player_hand.add_card(deck.deal(1))
+                    player_hand.display()
+                    if player_hand.get_value() > 21:
+                        print("Player busts! Dealer wins!")
+                        break
+                elif action == 's':
+                    break
+                else:
+                    print("Invalid input. Please enter 'h' to Hit or 's' to Stand.")
+
+            if player_hand.get_value() <= 21:
+                dealer_hand.display(show_all=True)
+                while dealer_hand.get_value() < 17:
+                    dealer_hand.add_card(deck.deal(1))
+                    dealer_hand.display(show_all=True)
+
+                if dealer_hand.get_value() > 21:
+                    print("Dealer busts! Player wins!")
+                elif dealer_hand.get_value() > player_hand.get_value():
+                    print("Dealer wins!")
+                elif dealer_hand.get_value() < player_hand.get_value():
+                    print("Player wins!")
+                else:
+                    print("It's a tie!")
+
+            game_number += 1
+game = Game()
+game.play()
